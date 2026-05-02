@@ -1,0 +1,11 @@
+# Runtime dependencies for the future FastAPI server.
+# The current MVP server in flux_server.py uses only the Python standard library.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+sqlalchemy>=2.0
+alembic>=1.13
+python-jose[cryptography]>=3.3
+passlib[bcrypt]>=1.7
+python-multipart>=0.0.9
+

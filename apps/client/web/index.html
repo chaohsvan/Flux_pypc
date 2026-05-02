@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flux - 时光流转</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <nav class="rail" aria-label="主导航">
+        <div class="brand">Flux</div>
+        <button class="rail-item" data-view="diary">日记</button>
+        <button class="rail-item active" data-view="calendar">日历</button>
+        <button class="rail-item" data-view="todo">待办</button>
+        <button class="rail-item" data-view="settings">设置</button>
+      </nav>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">过去 · 现在 · 未来</p>
+            <h1 id="view-title">日历</h1>
+          </div>
+          <div class="topbar-actions">
+            <button id="today-button" class="ghost">今天</button>
+            <button id="quick-add-button" class="primary">新建</button>
+          </div>
+        </header>
+
+        <section id="calendar-view" class="view active">
+          <div class="panel-grid calendar-layout">
+            <section class="panel">
+              <div class="section-title">
+                <button id="prev-month" class="icon-button">&lt;</button>
+                <h2 id="month-label"></h2>
+                <button id="next-month" class="icon-button">&gt;</button>
+              </div>
+              <div class="calendar-view-bar" aria-label="日历视图">
+                <button class="layer-pill" data-calendar-view="day" aria-pressed="false">日</button>
+                <button class="layer-pill" data-calendar-view="week" aria-pressed="false">周</button>
+                <button class="layer-pill is-active" data-calendar-view="month" aria-pressed="true">月</button>
+                <button class="layer-pill" data-calendar-view="quarter" aria-pressed="false">季度</button>
+                <button class="layer-pill" data-calendar-view="history-day" aria-pressed="false">那年今日</button>
+                <button class="layer-pill" data-calendar-view="history-month" aria-pressed="false">那年这月</button>
+              </div>
+              <div class="calendar-layer-bar" aria-label="日历显示内容">
+                <button class="layer-pill is-active" data-calendar-layer="event" aria-pressed="true">日历事件</button>
+                <button class="layer-pill is-active" data-calendar-layer="holiday" aria-pressed="true">节假日</button>
+                <button class="layer-pill" data-calendar-layer="todo" aria-pressed="false">待办</button>
+                <button class="layer-pill" data-calendar-layer="diary" aria-pressed="false">日记</button>
+                <button class="layer-pill" data-calendar-layer="trash" aria-pressed="false">回收站</button>
+              </div>
+              <div class="calendar-function-bar" aria-label="日历功能">
+                <button class="ghost compact-button holiday-mode-toggle" data-holiday-mode aria-pressed="false">标记节假日</button>
+              </div>
+              <div class="weekday-grid">
+                <span>周日</span><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span>
+              </div>
+              <div id="calendar-grid" class="calendar-grid"></div>
+            </section>
+
+            <aside class="panel day-panel">
+              <p class="eyebrow">选中日期</p>
+              <h2 id="selected-date-label"></h2>
+              <div id="day-summary" class="summary-row"></div>
+              <div class="quick-actions">
+                <button data-create="diary">写日记</button>
+                <button data-create="todo">加待办</button>
+                <button data-create="event">加事件</button>
+              </div>
+              <div id="day-aggregate" class="stack"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="todo-view" class="view">
+          <div class="panel-grid todo-layout">
+            <aside class="panel side-list">
+              <div class="side-section smart-section">
+                <h3>智能列表</h3>
+                <button class="filter smart-filter todo-drop-target" data-todo-smart="important" data-drop-update='{"priority":"high"}'>
+                  <span>高优先级</span><span id="todo-summary-important" class="filter-count">0</span>
+                </button>
+                <button class="filter smart-filter todo-drop-target" data-todo-due="planned">
+                  <span>定时任务</span><span id="todo-summary-planned" class="filter-count">0</span>
+                </button>
+              </div>
+              <h2>任务列表</h2>
+              <button class="filter active" data-todo-filter="">全部</button>
+              <button class="filter todo-drop-target" data-todo-filter="pending" data-drop-update='{"status":"pending"}'>待完成</button>
+              <button class="filter todo-drop-target" data-todo-filter="in_progress" data-drop-update='{"status":"in_progress"}'>进行中</button>
+              <button class="filter" data-todo-priority="high">高优先级</button>
+              <button class="filter" data-todo-due="recent">近期</button>
+              <button class="filter" data-todo-due="overdue">已逾期</button>
+              <button class="filter" data-todo-due="planned">定时任务</button>
+              <button class="filter" data-todo-trash="true">回收站</button>
+              <div class="side-section">
+                <h3>标签</h3>
+                <div id="project-filter-list" class="side-stack"></div>
+                <div class="inline-create">
+                  <input id="new-project-name" placeholder="新标签" />
+                  <button id="create-project-button">添加</button>
+                </div>
+              </div>
+            </aside>
+            <section class="panel">
+              <div class="section-title">
+                <h2>待办</h2>
+                <div class="toolbar-row">
+                  <input id="todo-search" class="search" placeholder="搜索任务" />
+                  <select id="todo-sort" class="sort-select">
+                    <option value="smart">智能排序</option>
+                    <option value="priority">优先级</option>
+                    <option value="due">截止时间</option>
+                    <option value="created">创建时间</option>
+                    <option value="status">完成状态</option>
+                    <option value="custom">自定义</option>
+                  </select>
+                  <select id="todo-group" class="sort-select">
+                    <option value="">不归类</option>
+                    <option value="project">按标签</option>
+                    <option value="due">按日期</option>
+                    <option value="priority">按优先级</option>
+                    <option value="status">按状态</option>
+                  </select>
+                  <button id="todo-export-toggle" class="ghost compact-button" type="button">多选</button>
+                </div>
+              </div>
+              <div class="quick-add-row">
+                <input id="quick-todo-title" placeholder="快速添加任务" />
+                <select id="quick-todo-priority">
+                  <option value="normal">正常</option>
+                  <option value="high">高优先级</option>
+                </select>
+                <input id="quick-todo-date" type="date" />
+                <button id="quick-todo-add">添加</button>
+              </div>
+              <div id="todo-stats" class="todo-stats"></div>
+              <div id="todo-batch-bar" class="batch-bar">
+                <span id="todo-selected-count">已选 0 项</span>
+                <button data-select-all-todos>全选</button>
+                <button data-invert-todo-selection>反选</button>
+                <button data-clear-todo-selection>清空</button>
+                <button data-export-selected="markdown">导出 MD</button>
+                <button data-export-selected="json">导出 JSON</button>
+                <button data-export-selected="csv">导出 CSV</button>
+                <button data-bulk-todo="complete">完成</button>
+                <button data-bulk-todo="important">设置为高优先级</button>
+                <button data-bulk-todo="normal_priority">设置为正常优先级</button>
+                <button data-bulk-todo="delete" class="danger-inline">删除</button>
+              </div>
+              <div id="todo-list" class="stack"></div>
+            </section>
+            <aside id="todo-detail-panel" class="panel detail-panel">
+              <p class="eyebrow">任务详情</p>
+              <h2 id="todo-detail-title">选择任务</h2>
+              <div id="todo-detail-content" class="detail-empty">从列表中打开一条任务，查看标签、截止时间、提醒和子任务。</div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="diary-view" class="view">
+          <div class="panel-grid diary-layout">
+            <aside class="panel side-list">
+              <h2>日记筛选</h2>
+              <div class="filter-tab-row">
+                <button class="filter-tab active" data-diary-tab="all" data-diary-filter="">全部</button>
+                <button class="filter-tab" data-diary-tab="favorite">收藏</button>
+                <button class="filter-tab" data-diary-tab="mood">心情</button>
+                <button class="filter-tab" data-diary-tab="month">月份</button>
+                <button class="filter-tab" data-diary-tab="year">年份</button>
+                <button class="filter-tab" data-diary-tab="trash">回收站</button>
+              </div>
+              <div class="side-section diary-filter-panel" data-diary-filter-panel="favorite">
+                <button class="filter diary-filter-control" data-diary-favorite="true">收藏</button>
+              </div>
+              <div class="side-section diary-filter-panel" data-diary-filter-panel="mood">
+                <button class="filter diary-filter-control" data-diary-mood="happy">开心</button>
+                <button class="filter diary-filter-control" data-diary-mood="calm">平和</button>
+                <button class="filter diary-filter-control" data-diary-mood="neutral">平静</button>
+                <button class="filter diary-filter-control" data-diary-mood="anxious">焦虑</button>
+                <button class="filter diary-filter-control" data-diary-mood="sad">难过</button>
+              </div>
+              <div class="side-section diary-filter-panel" data-diary-filter-panel="month">
+                <div id="diary-month-filter-list" class="side-stack"></div>
+              </div>
+              <div class="side-section diary-filter-panel" data-diary-filter-panel="year">
+                <div id="diary-year-filter-list" class="side-stack"></div>
+              </div>
+              <div class="side-section diary-tag-section">
+                <h3>标签</h3>
+                <div id="tag-filter-list" class="side-stack diary-tag-filter-list"></div>
+              </div>
+            </aside>
+            <section class="panel">
+              <div class="section-title">
+                <h2>日记</h2>
+                <div class="toolbar-row">
+                  <input id="diary-search" class="search" placeholder="搜索日记" />
+                  <button id="diary-export-toggle" class="ghost compact-button" type="button">导出</button>
+                </div>
+              </div>
+              <div id="diary-search-status" class="search-status" hidden></div>
+              <div id="diary-list" class="stack"></div>
+            </section>
+            <aside id="diary-export-panel" class="panel export-panel">
+              <div class="section-title">
+                <h2>导出</h2>
+              </div>
+              <div id="diary-batch-bar" class="batch-bar export-batch">
+                <span id="diary-selected-count">已选 0 篇</span>
+                <button data-select-all-diaries>全选</button>
+                <button data-invert-diary-selection>反选</button>
+                <button data-clear-diary-selection>清空</button>
+                <button data-export-diaries="markdown">导出 MD</button>
+                <button data-export-diaries="json">导出 JSON</button>
+                <button data-export-diaries="csv">导出 CSV</button>
+                <button data-cancel-diary-export>取消</button>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="settings-view" class="view">
+          <div class="settings-layout">
+            <section class="panel settings-panel">
+              <h2>偏好设置</h2>
+              <label>
+                主题
+                <select id="theme-select">
+                  <option value="system">跟随系统</option>
+                  <option value="light">浅色</option>
+                  <option value="dark">深色</option>
+                </select>
+              </label>
+              <p class="muted-text">主题设置会保存在当前浏览器中。</p>
+            </section>
+            <section class="panel attachment-panel">
+              <div class="section-title">
+                <h2>附件管理</h2>
+                <div class="toolbar-row">
+                  <button id="refresh-attachments-button" class="ghost compact-button" type="button">刷新</button>
+                  <button id="cleanup-attachments-button" class="ghost compact-button" type="button">清理</button>
+                </div>
+              </div>
+              <div id="attachment-stats" class="attachment-stats"></div>
+              <div class="attachment-filter-row" aria-label="附件类型筛选">
+                <button class="filter-tab active" data-attachment-kind="">全部</button>
+                <button class="filter-tab" data-attachment-kind="image">图片</button>
+                <button class="filter-tab" data-attachment-kind="audio">音频</button>
+                <button class="filter-tab" data-attachment-kind="file">其他</button>
+              </div>
+              <div id="attachment-list" class="attachment-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="entry-dialog">
+      <form method="dialog" id="entry-form">
+        <div class="dialog-head">
+          <h2 id="dialog-title">新建</h2>
+          <div class="dialog-head-actions">
+            <button id="save-entry" class="primary" value="default">保存</button>
+            <button id="dialog-close" class="icon-button" value="cancel" type="button">×</button>
+          </div>
+        </div>
+        <input type="hidden" id="entry-kind" />
+        <input type="hidden" id="entry-id" />
+        <label>标题 <input id="entry-title" /></label>
+        <label id="date-field">日期 <input id="entry-date" type="date" /></label>
+        <label id="time-field">时间 <input id="entry-time" type="time" value="09:00" /></label>
+        <label id="event-color-field">
+          颜色
+          <input id="entry-event-color" type="color" value="#4dabf7" />
+        </label>
+        <label id="event-location-field">
+          地点
+          <input id="entry-event-location" placeholder="例如 会议室 A / 线上" />
+        </label>
+        <label id="event-reminder-field">
+          提醒
+          <select id="entry-event-reminder">
+            <option value="">不提醒</option>
+            <option value="5">提前 5 分钟</option>
+            <option value="15">提前 15 分钟</option>
+            <option value="30">提前 30 分钟</option>
+            <option value="60">提前 1 小时</option>
+          </select>
+        </label>
+        <label id="event-all-day-field" class="inline-check">
+          <input id="entry-event-all-day" type="checkbox" />
+          全天事件
+        </label>
+        <label id="project-field">
+          标签
+          <select id="entry-project"></select>
+        </label>
+        <label id="priority-field">
+          优先级
+          <select id="entry-priority">
+            <option value="normal">正常</option>
+            <option value="high">高优先级</option>
+          </select>
+        </label>
+        <label id="todo-reminder-field">
+          提醒
+          <select id="entry-todo-reminder">
+            <option value="">不提醒</option>
+            <option value="5">提前 5 分钟</option>
+            <option value="15">提前 15 分钟</option>
+            <option value="30">提前 30 分钟</option>
+            <option value="60">提前 1 小时</option>
+            <option value="1440">提前 1 天</option>
+          </select>
+        </label>
+        <label id="mood-field">
+          情绪
+          <select id="entry-mood">
+            <option value="">未选择</option>
+            <option value="happy">开心</option>
+            <option value="calm">平和</option>
+            <option value="neutral">平静</option>
+            <option value="anxious">焦虑</option>
+            <option value="sad">难过</option>
+          </select>
+        </label>
+        <label id="diary-weather-field">
+          天气
+          <input id="entry-weather" placeholder="例如 晴 / 雨 / 多云" />
+        </label>
+        <label id="diary-location-field">
+          位置
+          <input id="entry-location" placeholder="例如 家 / 公司 / 咖啡馆" />
+        </label>
+        <label id="favorite-field" class="inline-check">
+          <input id="entry-favorite" type="checkbox" />
+          收藏这篇日记
+        </label>
+        <label id="tags-field">
+          标签
+          <input id="entry-tags" placeholder="用逗号分隔，例如 工作,复盘" />
+        </label>
+        <label id="subtasks-field">
+          子任务
+          <div id="subtask-editor" class="subtask-editor"></div>
+          <div class="inline-create">
+            <input id="new-subtask-title" placeholder="新子任务" />
+            <button id="add-subtask-button" type="button">添加</button>
+          </div>
+        </label>
+        <div id="markdown-tools" class="markdown-tools">
+          <button type="button" data-md="heading">标题</button>
+          <button type="button" data-md="bold">加粗</button>
+          <button type="button" data-md="italic">斜体</button>
+          <button type="button" data-md="list">列表</button>
+          <button type="button" data-md="link">链接</button>
+          <button type="button" data-attachment="image">图片</button>
+          <button type="button" data-attachment="audio">音频</button>
+          <button type="button" data-attachment="file">附件</button>
+          <button type="button" id="markdown-preview-toggle">预览</button>
+        </div>
+        <input id="diary-image-input" type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden />
+        <input id="diary-audio-input" type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a" hidden />
+        <input id="diary-file-input" type="file" accept=".pdf,.txt,.md,.csv,.json,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z" hidden />
+        <label id="body-field">内容 <textarea id="entry-body" rows="6"></textarea></label>
+        <div id="markdown-preview" class="markdown-preview"></div>
+        <menu>
+          <button id="dialog-cancel" value="cancel" type="button">取消</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <div id="toast-region" class="toast-region" aria-live="polite"></div>
+    <div id="todo-context-menu" class="context-menu" hidden></div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

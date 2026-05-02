@@ -1,0 +1,37 @@
+{
+  "name": "chinese-days",
+  "version": "1.5.7",
+  "description": "中国节假日、调休日、工作日、24节气查询，农历阳历互转，支持 TS、CommonJS、UMD 模块化使用，提供 ics 日历格式，可供 Google Calendar、Apple Calendar、Microsoft Outlook 等客户端订阅。",
+  "main": "dist/index.min.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vsme/chinese-days.git"
+  },
+  "files": [
+    "dist/*",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "README.en.md"
+  ],
+  "keywords": [
+    "中国日期",
+    "节假日",
+    "工作日",
+    "调休",
+    "24节气",
+    "农历",
+    "阴历",
+    "阳历",
+    "日历",
+    "订阅"
+  ],
+  "author": "Yaavi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vsme/chinese-days/issues"
+  }
+}
