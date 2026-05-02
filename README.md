@@ -1,11 +1,9 @@
 # Flux
 (vibe coding)
 
-    <Flux><Flux_pypc>  Copyright (C) <2026>  <chaohsvan>
-    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; type `show c' for details.
+本项目采用 GNU General Public License v3.0 许可证开源，详见 [LICENSE](LICENSE)。
 
+Copyright (C) 2026 chaohsvan
 Flux 是一个本地优先的个人效率与生活记录系统，用来把日记、日历、待办、附件和回收站恢复放在同一个清晰的时间上下文里。
 
 当前项目是一个可运行的 MVP：前端使用原生 Web，后端使用 Python 标准库 HTTP 服务，数据保存在本地 SQLite 数据库中，附件保存在本地文件系统中。整体目标是低依赖、易运行、易备份，并让个人数据始终可控。
