@@ -1,4 +1,10 @@
 # Flux
+(vibe coding)
+
+    <Flux><Flux_pypc>  Copyright (C) <2026>  <chaohsvan>
+    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; type `show c' for details.
 
 Flux 是一个本地优先的个人效率与生活记录系统，用来把日记、日历、待办、附件和回收站恢复放在同一个清晰的时间上下文里。
 
